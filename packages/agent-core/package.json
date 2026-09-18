@@ -1,0 +1,20 @@
+{
+  "name": "@ai-data-analyst/agent-core",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@ai-data-analyst/shared-types": "*",
+    "@ai-data-analyst/ai-core": "*",
+    "@ai-data-analyst/sql-safety": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
