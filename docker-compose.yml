@@ -3,14 +3,71 @@ services:
     image: mysql:8.4
     restart: unless-stopped
     environment:
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ai_data_analyst
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-sales_business}
+      # Read by infra/mysql/init/02-create-readonly-user.sh — deliberately
+      # not MYSQL_USER/MYSQL_PASSWORD, which would make the mysql image
+      # auto-create a user with full privileges instead of read-only.
+      MYSQL_APP_USER: ${MYSQL_APP_USER:-ai_analyst_readonly}
+      MYSQL_APP_PASSWORD: ${MYSQL_APP_PASSWORD:-changeme}
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./infra/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Local vector store for the business-glossary RAG pipeline. Swap for a
+  # managed store (e.g. Pinecone) in production by pointing VECTOR_DB_URL
+  # elsewhere and using a different VectorStore implementation from
+  # packages/rag — application code never talks to Chroma directly.
+  chroma:
+    image: chromadb/chroma:latest
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - apps/api/.env
+    environment:
+      # Overrides apps/api/.env's localhost-oriented values with the
+      # in-network service names/credentials Docker Compose provisions.
+      MYSQL_HOST: mysql
+      MYSQL_PORT: "3306"
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-sales_business}
+      MYSQL_USER: ${MYSQL_APP_USER:-ai_analyst_readonly}
+      MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD:-changeme}
+      VECTOR_DB_PROVIDER: chroma
+      VECTOR_DB_URL: http://chroma:8000
+    ports:
+      - "5001:5001"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      chroma:
+        condition: service_started
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
 
 volumes:
   mysql_data:
+  chroma_data:

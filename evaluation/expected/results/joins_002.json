@@ -1,0 +1,12 @@
+{
+  "type": "rows",
+  "columns": ["employee_id", "order_count"],
+  "expectedRows": [
+    [1, 4],
+    [2, 5],
+    [3, 4],
+    [4, 4],
+    [5, 2],
+    [6, 1]
+  ]
+}

@@ -10,7 +10,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@ai-data-analyst/shared-types": "*"
+    "@ai-data-analyst/shared-types": "*",
+    "chromadb": "^3.5.0"
   },
   "devDependencies": {
     "typescript": "^5.6.3"

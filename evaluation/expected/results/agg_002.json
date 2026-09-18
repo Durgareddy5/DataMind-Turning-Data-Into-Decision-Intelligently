@@ -1,0 +1,12 @@
+{
+  "type": "rows",
+  "columns": ["category", "revenue"],
+  "tolerance": 0.01,
+  "expectedRows": [
+    ["Laptops", 2241540],
+    ["Smartphones", 677850],
+    ["Monitors", 196200],
+    ["Accessories", 151500],
+    ["Audio", 110200]
+  ]
+}

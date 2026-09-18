@@ -1,0 +1,14 @@
+[
+  {
+    "id": "joins_001",
+    "category": "joins",
+    "question": "Show each customer's name along with their region name.",
+    "role": "analyst"
+  },
+  {
+    "id": "joins_002",
+    "category": "joins",
+    "question": "How many orders has each employee handled? Include employee id and order count.",
+    "role": "analyst"
+  }
+]

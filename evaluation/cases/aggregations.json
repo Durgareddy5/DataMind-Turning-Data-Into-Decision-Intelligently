@@ -1,0 +1,14 @@
+[
+  {
+    "id": "agg_001",
+    "category": "aggregations",
+    "question": "What is the total revenue by region? Order from highest to lowest.",
+    "role": "analyst"
+  },
+  {
+    "id": "agg_002",
+    "category": "aggregations",
+    "question": "For South India, what is the total revenue broken down by product category? Order from highest to lowest.",
+    "role": "analyst"
+  }
+]

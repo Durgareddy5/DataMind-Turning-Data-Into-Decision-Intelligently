@@ -3,13 +3,14 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/index.js",
+    "start": "node dist/server.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test:gemini": "tsx src/scripts/test-gemini.ts"
+    "test:gemini": "tsx src/scripts/test-gemini.ts",
+    "eval": "tsx src/scripts/run-evaluation.ts"
   },
   "dependencies": {
     "@ai-data-analyst/agent-core": "*",

@@ -1,0 +1,18 @@
+{
+  "type": "rows",
+  "columns": ["customer_name", "region_name"],
+  "expectedRows": [
+    ["Apex Industries", "South India"],
+    ["BlueSky Enterprises", "West India"],
+    ["CloudNine Systems", "South India"],
+    ["FutureTech Inc", "North America"],
+    ["Global Retail Corp", "Europe"],
+    ["GreenLeaf Retail", "South India"],
+    ["Metro Mart", "North India"],
+    ["NextGen Software", "North India"],
+    ["SmartHome Store", "South India"],
+    ["Sunrise Traders", "West India"],
+    ["TechNova Solutions", "South India"],
+    ["Urban Foods", "East India"]
+  ]
+}

@@ -2,10 +2,13 @@ node_modules/
 dist/
 build/
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+!.env.*.example
 *.log
 .DS_Store
 .turbo/
 coverage/
 .vercel/
+evaluation/report/*.json
+docker-compose.override.yml

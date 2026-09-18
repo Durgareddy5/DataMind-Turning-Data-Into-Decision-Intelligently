@@ -5,6 +5,9 @@ export type { JsonSchema };
 export interface ToolContext {
   user: AuthUser;
   sessionId: string;
+  // Correlation ID for one question/orchestration run (distinct from
+  // sessionId, which spans multiple questions in a conversation).
+  analysisRunId: string;
 }
 
 export interface ToolDefinition<Args = any, Result = any> {

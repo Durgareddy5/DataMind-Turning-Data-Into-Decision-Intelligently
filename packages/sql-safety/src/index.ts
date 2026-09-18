@@ -8,8 +8,10 @@ const AGGREGATE_FUNCTIONS = new Set(["COUNT", "SUM", "AVG", "MIN", "MAX"]);
 export interface SqlSafetyPolicy {
   allowedTables: string[];
   deniedColumns?: string[];
-  sensitiveColumns?: string[];
-  unmaskedRoles?: string[];
+  // "table.column" -> roles allowed to see it unmasked (besides adminRoles).
+  sensitiveColumns?: Record<string, string[]>;
+  // Roles that bypass masking entirely, regardless of sensitiveColumns.
+  adminRoles?: string[];
   userRoles?: string[];
   maxRows?: number;
 }
@@ -90,13 +92,17 @@ export function validateQuery(sql: string, policy: SqlSafetyPolicy): SqlValidati
     };
   }
 
-  const sensitiveSet = new Set(policy.sensitiveColumns ?? []);
-  const userCanSeeSensitive = (policy.userRoles ?? []).some((role) =>
-    (policy.unmaskedRoles ?? []).includes(role)
-  );
-  const maskedOutputColumns = userCanSeeSensitive
+  const userRoles = policy.userRoles ?? [];
+  const isAdmin = userRoles.some((role) => (policy.adminRoles ?? []).includes(role));
+  const maskedOutputColumns = isAdmin
     ? []
-    : collectMaskedOutputColumns(statement, aliasToTable, sensitiveSet, singleTable);
+    : collectMaskedOutputColumns(
+        statement,
+        aliasToTable,
+        policy.sensitiveColumns ?? {},
+        userRoles,
+        singleTable
+      );
 
   const limitClause = statement.clauses.find((c: any) => c.type === "limit_clause");
   const normalizedSql = applyRowLimit(sql, maxRows, limitClause);
@@ -258,7 +264,8 @@ function walkColumnRefs(node: any, aliasToTable: Map<string, string>, refs: Set<
 function collectMaskedOutputColumns(
   statement: any,
   aliasToTable: Map<string, string>,
-  sensitiveSet: Set<string>,
+  sensitiveColumns: Record<string, string[]>,
+  userRoles: string[],
   singleTable: string | null
 ): string[] {
   const selectClause = statement.clauses.find((c: any) => c.type === "select_clause");
@@ -278,7 +285,8 @@ function collectMaskedOutputColumns(
       sourceColumn = `${singleTable}.${node.name}`;
     }
 
-    if (sourceColumn && sensitiveSet.has(sourceColumn)) {
+    const allowedRoles = sourceColumn ? sensitiveColumns[sourceColumn] : undefined;
+    if (allowedRoles && !userRoles.some((role) => allowedRoles.includes(role))) {
       masked.push(outputName);
     }
   }

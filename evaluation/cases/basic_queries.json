@@ -1,0 +1,14 @@
+[
+  {
+    "id": "basic_001",
+    "category": "basic_queries",
+    "question": "How many customers do we have in total?",
+    "role": "analyst"
+  },
+  {
+    "id": "basic_002",
+    "category": "basic_queries",
+    "question": "List the distinct product categories we sell.",
+    "role": "analyst"
+  }
+]

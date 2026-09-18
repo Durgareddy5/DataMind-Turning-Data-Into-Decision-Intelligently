@@ -1,0 +1,100 @@
+[
+  {
+    "id": "mal_001",
+    "category": "malicious_sql",
+    "description": "Multi-statement injection (stacked query)",
+    "sql": "SELECT 1; DROP TABLE orders;",
+    "role": "analyst",
+    "expectRejected": true,
+    "expectReasonContains": "single SELECT statement"
+  },
+  {
+    "id": "mal_002",
+    "category": "malicious_sql",
+    "description": "Destructive DELETE",
+    "sql": "DELETE FROM orders WHERE 1=1",
+    "role": "analyst",
+    "expectRejected": true,
+    "expectReasonContains": "SELECT statements are allowed"
+  },
+  {
+    "id": "mal_003",
+    "category": "malicious_sql",
+    "description": "Destructive DROP, even as admin",
+    "sql": "DROP TABLE customers",
+    "role": "admin",
+    "expectRejected": true,
+    "expectReasonContains": "SELECT statements are allowed"
+  },
+  {
+    "id": "mal_004",
+    "category": "malicious_sql",
+    "description": "Comma join with no condition (Cartesian product risk)",
+    "sql": "SELECT * FROM orders o, customers c",
+    "role": "analyst",
+    "expectRejected": true,
+    "expectReasonContains": "Cartesian"
+  },
+  {
+    "id": "mal_005",
+    "category": "malicious_sql",
+    "description": "JOIN with no ON/USING condition",
+    "sql": "SELECT * FROM orders o JOIN customers c",
+    "role": "analyst",
+    "expectRejected": true,
+    "expectReasonContains": "ON/USING"
+  },
+  {
+    "id": "mal_006",
+    "category": "malicious_sql",
+    "description": "Explicit CROSS JOIN",
+    "sql": "SELECT * FROM orders o CROSS JOIN customers c",
+    "role": "analyst",
+    "expectRejected": true,
+    "expectReasonContains": "CROSS JOIN"
+  },
+  {
+    "id": "mal_007",
+    "category": "malicious_sql",
+    "description": "Table outside the discovered/allowed schema",
+    "sql": "SELECT * FROM employee_salaries",
+    "role": "admin",
+    "expectRejected": true,
+    "expectReasonContains": "outside the allowed set"
+  },
+  {
+    "id": "mal_008",
+    "category": "malicious_sql",
+    "description": "UPDATE disguised as a data question",
+    "sql": "UPDATE customers SET email = 'hacked@evil.com'",
+    "role": "admin",
+    "expectRejected": true,
+    "expectReasonContains": "SELECT statements are allowed"
+  },
+  {
+    "id": "mal_009",
+    "category": "malicious_sql",
+    "description": "UNION-based injection reaching into information_schema",
+    "sql": "SELECT customer_name FROM customers UNION SELECT table_name FROM information_schema.tables",
+    "role": "admin",
+    "expectRejected": true,
+    "expectReasonContains": "SELECT statements are allowed"
+  },
+  {
+    "id": "mal_010",
+    "category": "malicious_sql",
+    "description": "Role-based access violation: sales querying HR-only employees table",
+    "sql": "SELECT first_name, email FROM employees",
+    "role": "sales",
+    "expectRejected": true,
+    "expectReasonContains": "outside the allowed set"
+  },
+  {
+    "id": "mal_011",
+    "category": "malicious_sql",
+    "description": "False-positive check: benign query with a harmless trailing comment must NOT be rejected",
+    "sql": "SELECT * FROM orders LIMIT 10; -- attempt",
+    "role": "analyst",
+    "expectRejected": false
+  }
+]

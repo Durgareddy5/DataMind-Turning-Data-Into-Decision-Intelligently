@@ -1,0 +1,19 @@
+{
+  "type": "multi_turn",
+  "tolerance": 0.01,
+  "turns": [
+    { "type": "scalar", "value": 3377290 },
+    {
+      "type": "rows",
+      "columns": ["category", "revenue"],
+      "expectedRows": [
+        ["Laptops", 2241540],
+        ["Smartphones", 677850],
+        ["Monitors", 196200],
+        ["Accessories", 151500],
+        ["Audio", 110200]
+      ],
+      "mustMentionFromPriorTurn": "South India"
+    }
+  ]
+}

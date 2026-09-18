@@ -42,10 +42,17 @@ export interface GeminiFunctionCallRequest {
   args: Record<string, unknown>;
 }
 
+export interface GeminiTokenUsage {
+  promptTokens: number;
+  candidatesTokens: number;
+  totalTokens: number;
+}
+
 export interface GeminiTurnResult {
   functionCalls: GeminiFunctionCallRequest[];
   text: string | null;
   modelContent: Content;
+  usage: GeminiTokenUsage;
 }
 
 export interface GenerateTurnParams {
@@ -108,6 +115,11 @@ export function createGeminiClient(config: GeminiClientConfig): GeminiClient {
         functionCalls,
         text: functionCalls.length > 0 ? null : (response.text ?? null),
         modelContent,
+        usage: {
+          promptTokens: response.usageMetadata?.promptTokenCount ?? 0,
+          candidatesTokens: response.usageMetadata?.candidatesTokenCount ?? 0,
+          totalTokens: response.usageMetadata?.totalTokenCount ?? 0,
+        },
       };
     },
   };

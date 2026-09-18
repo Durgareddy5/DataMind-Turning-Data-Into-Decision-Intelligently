@@ -1,0 +1,11 @@
+[
+  {
+    "id": "multiturn_001",
+    "category": "multi_turn",
+    "role": "analyst",
+    "turns": [
+      { "question": "What is the total revenue for South India?" },
+      { "question": "Now break that down by product category." }
+    ]
+  }
+]

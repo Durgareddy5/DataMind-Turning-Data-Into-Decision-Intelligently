@@ -1,0 +1,7 @@
+{
+  "type": "grounded",
+  "note": "No single correct answer — 'best' is ambiguous (revenue? order count? growth?). Scored only for whether the answer is grounded in a real region and a real number from the actual data, not for matching one specific interpretation.",
+  "acceptableRegions": ["South India", "North America", "West India", "North India", "Europe", "East India"],
+  "acceptableNumbers": [3377290, 1877000, 941990, 799830, 739650, 161850],
+  "tolerance": 0.01
+}

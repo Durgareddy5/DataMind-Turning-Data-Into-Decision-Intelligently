@@ -1,0 +1,13 @@
+{
+  "type": "rows",
+  "columns": ["region_name", "total_revenue"],
+  "tolerance": 0.01,
+  "expectedRows": [
+    ["South India", 3377290],
+    ["North America", 1877000],
+    ["West India", 941990],
+    ["North India", 799830],
+    ["Europe", 739650],
+    ["East India", 161850]
+  ]
+}

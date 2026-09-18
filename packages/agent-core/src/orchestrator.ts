@@ -1,4 +1,10 @@
-import type { GeminiClient, GeminiContent, GeminiPart, GeminiToolSpec } from "@ai-data-analyst/ai-core";
+import type {
+  GeminiClient,
+  GeminiContent,
+  GeminiPart,
+  GeminiTokenUsage,
+  GeminiToolSpec,
+} from "@ai-data-analyst/ai-core";
 import { buildFunctionResponsePart } from "@ai-data-analyst/ai-core";
 import type { ToolContext, ToolRegistry } from "./tool.js";
 
@@ -12,6 +18,9 @@ export type TerminationReason = "final_response" | "max_tool_calls_exceeded" | "
 export interface OrchestrationResult {
   answer: string;
   toolCallCount: number;
+  geminiCallCount: number;
+  geminiLatencyMs: number;
+  tokenUsage: GeminiTokenUsage;
   steps: OrchestrationStep[];
   terminationReason: TerminationReason;
 }
@@ -47,18 +56,39 @@ export async function runAgentLoop(params: RunAgentLoopParams): Promise<Orchestr
   const history: GeminiContent[] = [{ role: "user", parts: [{ text: params.question }] }];
   const steps: OrchestrationStep[] = [];
   let toolCallCount = 0;
+  let geminiCallCount = 0;
+  let geminiLatencyMs = 0;
   let consecutiveFailures = 0;
+  const tokenUsage: GeminiTokenUsage = { promptTokens: 0, candidatesTokens: 0, totalTokens: 0 };
+
+  const addUsage = (usage: GeminiTokenUsage): void => {
+    geminiCallCount += 1;
+    tokenUsage.promptTokens += usage.promptTokens;
+    tokenUsage.candidatesTokens += usage.candidatesTokens;
+    tokenUsage.totalTokens += usage.totalTokens;
+  };
 
   while (true) {
+    const turnStart = Date.now();
     const turn = await params.geminiClient.generateTurn({
       systemInstruction: params.systemInstruction,
       history,
       tools: toolSpecs,
     });
+    geminiLatencyMs += Date.now() - turnStart;
+    addUsage(turn.usage);
     history.push(turn.modelContent);
 
     if (turn.functionCalls.length === 0) {
-      return { answer: turn.text ?? "", toolCallCount, steps, terminationReason: "final_response" };
+      return {
+        answer: turn.text ?? "",
+        toolCallCount,
+        geminiCallCount,
+        geminiLatencyMs,
+        tokenUsage,
+        steps,
+        terminationReason: "final_response",
+      };
     }
 
     const responseParts: GeminiPart[] = [];
@@ -68,6 +98,9 @@ export async function runAgentLoop(params: RunAgentLoopParams): Promise<Orchestr
         return {
           answer: MAX_TOOL_CALLS_MESSAGE,
           toolCallCount,
+          geminiCallCount,
+          geminiLatencyMs,
+          tokenUsage,
           steps,
           terminationReason: "max_tool_calls_exceeded",
         };
@@ -90,6 +123,9 @@ export async function runAgentLoop(params: RunAgentLoopParams): Promise<Orchestr
           return {
             answer: REPEATED_FAILURES_MESSAGE,
             toolCallCount,
+            geminiCallCount,
+            geminiLatencyMs,
+            tokenUsage,
             steps,
             terminationReason: "repeated_failures",
           };
