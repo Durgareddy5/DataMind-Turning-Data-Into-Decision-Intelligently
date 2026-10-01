@@ -1,17 +1,26 @@
 import mysql from "mysql2/promise";
 import { env } from "../config/env.js";
 
-export const pool = mysql.createPool({
-  host: env.mysql.host,
-  port: env.mysql.port,
-  database: env.mysql.database,
-  user: env.mysql.user,
-  password: env.mysql.password,
-  connectionLimit: 10,
-  // Without this, DECIMAL columns (money) come back as strings and break
-  // downstream numeric analysis (analyze_result, chart specs, aggregates).
-  decimalNumbers: true,
-});
+// export const pool = mysql.createPool({
+//   host: env.mysql.host,
+//   port: env.mysql.port,
+//   database: env.mysql.database,
+//   user: env.mysql.user,
+//   password: env.mysql.password,
+//   connectionLimit: 10,
+//   // Without this, DECIMAL columns (money) come back as strings and break
+//   // downstream numeric analysis (analyze_result, chart specs, aggregates).
+//   decimalNumbers: true,
+// });
+
+
+const mysqlUrl = process.env.MYSQL_URL;
+
+if (!mysqlUrl) {
+  throw new Error("MYSQL_URL is not defined");
+}
+
+export const pool = mysql.createPool(mysqlUrl);
 
 export async function closePool(): Promise<void> {
   await pool.end();
