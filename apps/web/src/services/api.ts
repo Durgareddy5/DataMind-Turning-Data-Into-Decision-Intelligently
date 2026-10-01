@@ -21,7 +21,9 @@ export function setStoredToken(token: string | null): void {
 }
 
 export const api = axios.create({
-  baseURL: "/api/v1",
+  // In dev the Vite proxy forwards /api to the local API. In production the
+  // frontend is served separately, so VITE_API_URL points at the API's origin.
+  baseURL: `${import.meta.env.VITE_API_URL ?? ""}/api/v1`,
 });
 
 api.interceptors.request.use((config) => {
