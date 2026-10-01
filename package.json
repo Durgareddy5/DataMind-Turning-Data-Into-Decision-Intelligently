@@ -9,7 +9,10 @@
   "scripts": {
     "dev:web": "npm run dev --workspace=apps/web",
     "dev:api": "npm run dev --workspace=apps/api",
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build:packages && npm run build:apps",
+    "build:packages": "npm run build -w @ai-data-analyst/shared-types -w @ai-data-analyst/sql-safety -w @ai-data-analyst/observability -w @ai-data-analyst/ai-core -w @ai-data-analyst/rag -w @ai-data-analyst/agent-core",
+    "build:apps": "npm run build -w @ai-data-analyst/api -w apps/web",
+    "build:api": "npm run build:packages && npm run build -w @ai-data-analyst/api",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },
